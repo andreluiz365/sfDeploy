@@ -1,18 +1,48 @@
 #!groovy
 pipeline{
- agent{label "master"}
+	agent { 
+    		kubernetes { 
+      		label 'salesforce-deploy' 
+      		defaultContainer 'jnlp' 
+      		yaml """ 
+			apiVersion: v1 
+			kind: Pod 
+			metadata: 
+  			labels: 
+    				some-label: salesforce-deploy 
+			spec: 
+  			containers: 
+  				- name: salesforce-deploy 
+    					image: ${imgID}.dkr.ecr.us-east-1.amazonaws.com/salesforce-deploy:latest 
+    			securityContext: 
+      			privileged: true 
+    			resources: 
+      			limits: 
+        			memory: "2Gi" 
+        			cpu: "2" 
+      			requests: 
+        			memory: "1Gi" 
+        			cpu: "1" 
+    			tty: true 
+    			command: 
+    				- cat 
+    			env: 
+    				- name: AWS_DEFAULT_REGION 
+      			value: us-east-1´ 
+			""" 
+    } 
+  } 	
     stages{
-        stage('load'){
+        stage('configs'){
             steps{
                 script{
-                dir ("parametros"){   
+                dir ("configs"){   
                 sh 'pwd && echo ${JOB_NAME} && echo ${WORKSPACE}'
-                load "Credenciais.groovy"
                 load "${JOB_NAME}.groovy"
                 }
                 dir('Groovy') {
-				    checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], gitTool: '${gitInit}', submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${env.userIdGit}", url: "git@gitcorp.prod.cloud.ihf:open-pipeline/LibsGroovy.git"]]])
-					libJira = load "jiraCard.groovy"
+			checkout([$class: 'GitSCM', branches: [[name: 'master']], doGenerateSubmoduleConfigurations: false, extensions: [[$class: 'CleanBeforeCheckout']], gitTool: '${gitInit}', submoduleCfg: [], userRemoteConfigs: [[credentialsId: "${env.userIdGit}", url: "git@${org}:${squad}/libs.git"]]])
+					lib = load "jira.groovy"
 		        }
                 }//script
                 }//steps
