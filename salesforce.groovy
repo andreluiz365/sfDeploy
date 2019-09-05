@@ -56,7 +56,7 @@ pipeline{
                 }//script
             }//steps
         }//build
-        stage ('test'){
+        stage ('Test Org'){
                 steps{
                     script{
                         dir ("${ProjectDir}"){
@@ -88,15 +88,13 @@ pipeline{
        stage('deploy'){
             steps{
               script{
-                   withCredentials([usernamePassword(credentialsId: "${userPuppetId}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-                   sh "$JENKINS_HOME/scripts/pe_get_token.sh ${USERNAME} ${PASSWORD}"
+                   withCredentials([usernamePassword(credentialsId: "${userId}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                   sh "antDeploy.sh ${USERNAME} "
                    }
-                   sh "$JENKINS_HOME/scripts/pe_change_parameter.sh ${nodeGroupId} ${className} ${pkgParmName} ${pkgVersion}-R1"
                    try{
-                        sh "$JENKINS_HOME/scripts/pe_plan_job.sh ${className} ${environment}"
-                        sh "$JENKINS_HOME/scripts/pe_run_job.sh ${className} ${environment}"
+                        sh "antDeploy.sh ${pkgName}"                        
                    }catch(Exc){
-                       println ("Erro ao aplicar o agent na maquina")
+                       println ("Erro ao aplicar o pacote Org Salesforce")
                    }
                }//script
             }//steps
