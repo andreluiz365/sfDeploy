@@ -13,7 +13,7 @@ pipeline{
 			spec: 
   			containers: 
   				- name: salesforce-deploy 
-    					image: ${imgID}.dkr.ecr.us-east-1.amazonaws.com/salesforce-deploy:latest 
+    					image: ${ARN_ID}.dkr.ecr.us-east-1.amazonaws.com/salesforce-deploy:latest 
     			securityContext: 
       			privileged: true 
     			resources: 
